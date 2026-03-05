@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LostAndFound = () => {
+  const navigate = useNavigate();
   const [showReportForm, setShowReportForm] = useState(false);
   const [formData, setFormData] = useState({
     itemName: '',
@@ -10,17 +12,20 @@ const LostAndFound = () => {
     urgency: 'Low'
   });
 
-  const stats = [
-    { label: 'Total Reports', value: 128, icon: '📋' },
-    { label: 'Active Complaints', value: 5, icon: '🚨' },
-    { label: 'Items Matched', value: 12, icon: '✓', color: 'green' },
-    { label: 'Events Registered', value: 8, icon: '📅' }
-  ];
-
-  const recentActivity = [
+  // State for dynamic stats and recent activity
+  const [totalReports, setTotalReports] = useState(128);
+  const [totalComplaints, setTotalComplaints] = useState(5);
+  const [recentActivity, setRecentActivity] = useState([
     { id: 1, item: 'Phone', status: 'Discussed', badge: 'Pending' },
     { id: 2, item: 'Backpack', status: 'Discussed', badge: 'Rending' },
     { id: 3, item: 'Wallet', status: 'Discussed', badge: 'Matching' }
+  ]);
+
+  const stats = [
+    { label: 'Total Reports', value: totalReports, icon: '📋' },
+    { label: 'Active Complaints', value: totalComplaints, icon: '🚨' },
+    { label: 'Items Matched', value: 12, icon: '✓', color: 'green' },
+    { label: 'Events Registered', value: 8, icon: '📅' }
   ];
 
   const handleInputChange = (e) => {
@@ -34,6 +39,19 @@ const LostAndFound = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
+    
+    // Create new activity entry from form data
+    const newActivity = {
+      id: Date.now(),
+      item: formData.itemName,
+      status: 'Discussed',
+      badge: formData.urgency
+    };
+    
+    // Update recent activity and total reports
+    setRecentActivity([newActivity, ...recentActivity]);
+    setTotalReports(totalReports + 1);
+    
     alert('Report submitted successfully!');
     setFormData({
       itemName: '',
@@ -88,7 +106,10 @@ const LostAndFound = () => {
         >
           📝 Report Lost Item
         </button>
-        <button className="btn-submit-complaint">
+        <button 
+          className="btn-submit-complaint"
+          onClick={() => navigate('/complaints')}
+        >
           ✓ Submit Complaint
         </button>
         <button className="btn-register-event">
